@@ -14,7 +14,9 @@ BINARY		:=	mkfs
 
 LNKFLAGS	=	-o $(BINARY)				\
 
-SRCDIR		:=	$(addprefix src/,	.		\
+SRCDIR		:=	src									\
+				$(addprefix src/formats/,			\
+								ext2				\
 				)
 
 INCDIR		=	inc

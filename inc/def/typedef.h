@@ -35,7 +35,8 @@ typedef uint16_t        u16_t;
 typedef uint32_t        u32_t;
 typedef uint64_t        u64_t;
 
-typedef void *          virtaddr_t;
-typedef uintptr_t       physaddr_t;
+typedef uint8_t  __u8;
+typedef uint16_t __le16;
+typedef uint32_t __le32;
 
 #endif
