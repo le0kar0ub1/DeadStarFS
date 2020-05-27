@@ -94,12 +94,47 @@ static void get_total_group(struct mkfsext2_t *mkfs)
     }
 }
 
+uint8 zeroblk[MKFS_BLOCK_SIZE] = {0};
+
+static void fillzero_block(int fd, int blk)
+{
+    off_t pos = lseek(fd, 0, SEEK_CUR);
+
+    if (!pos || !lseek(fd, blk * MKFS_BLOCK_SIZE, SEEK_SET))
+        pexit("lseek failed");
+    if (!write(fd, &zeroblk, MKFS_BLOCK_SIZE))
+        pexit("write failed");
+    if (!lseek(fd, pos, SEEK_SET))
+        pexit("lseek failed");
+}
+
+static void bitmap_setxbit(int fd, int blknbr, int bits)
+{
+    uint8 wr = 0x0;
+    off_t pos = lseek(fd, 0, SEEK_CUR);
+
+    if (!pos)
+        pexit("lseek failed");
+    if (!lseek(fd, blknbr * MKFS_BLOCK_SIZE, SEEK_SET))
+        pexit("lseek failed");
+    while (bits > 0)
+    {
+        wr = (1 << (bits % 9)) - 1;
+        if (write(fd, &wr, 1) != 1)
+            pexit("write failed");
+        bits -= 8;
+    }
+    if (!lseek(fd, pos, SEEK_SET))
+        pexit("lseek failed");
+}
+
+
 /*
 ** Generate all the block groups we can
 */
-static void create_block_groups(struct mkfsext2_t *mkfs)
+static void create_block_groups(struct mkfsext2_t *mkfs, struct ext2_super_block *super)
 {
-    struct ext2_group_desc gpdesc = { 0 };
+    struct ext2_group_desc bgdesc = { 0 };
     uint bginc = 0x0;
     uint curblk = 0x0;
 
@@ -108,27 +143,44 @@ static void create_block_groups(struct mkfsext2_t *mkfs)
     curblk = (MKFS_GROUP_TABLE_OFFSET / MKFS_BLOCK_SIZE) + mkfs->blk_grp_table_blknbr;
     while (bginc < mkfs->blk_grp_blknbr)
     {
-        gpdesc.bg_block_bitmap = curblk++;
-        gpdesc.bg_inode_bitmap = curblk++;
-        gpdesc.bg_inode_table = curblk++;
+        bgdesc.bg_block_bitmap = curblk++;
+        bgdesc.bg_inode_bitmap = curblk++;
+        bgdesc.bg_inode_table  = curblk++;
 
-        
-        gpdesc.bg_free_inodes_count = MKFS_INODES_PER_GROUP;
+        bgdesc.bg_free_blocks_count = MKFS_FREE_BLOCKS_PER_GROUP;
+        bgdesc.bg_free_inodes_count = MKFS_INODES_PER_GROUP;
+        fillzero_block(mkfs->fd, bgdesc.bg_block_bitmap);
+        fillzero_block(mkfs->fd, bgdesc.bg_inode_bitmap);
+
+        if (bginc > 0) {
+            bitmap_setxbit(mkfs->fd, bgdesc.bg_block_bitmap, MKFS_GROUP_OVERHEAD_BLOCKS);
+        } else {
+
+        }
+        if (!write(mkfs->fd, &bgdesc, sizeof(struct ext2_group_desc)))
+            pexit("write failed");
+        super->s_inodes_count += MKFS_INODES_PER_GROUP;
+        super->s_free_inodes_count += bgdesc.bg_free_inodes_count;
+        super->s_blocks_count += MKFS_BLOCKS_PER_GROUP;
+        super->s_free_blocks_count += bgdesc.bg_free_blocks_count;
         bginc++;
+        curblk = bginc * MKFS_BLOCKS_PER_GROUP;
     }
 }
 
 /*
-** Ext2 hookpoint
+** ext2 hookpoint
 */
 void ext2_handler(char const *disk)
 {
-    struct mkfsext2_t *mkfs = malloc(sizeof(struct mkfsext2_t));
+    struct mkfsext2_t *mkfs = calloc(sizeof(struct mkfsext2_t), 1);
+    struct ext2_super_block *super = calloc(sizeof(struct ext2_super_block), 1);
 
     if ((mkfs->fd = open(disk, O_WRONLY)) == -1)
         pexit("Invalid given image disk");
     mkfs->imgsize = checkup(disk);
     get_total_group(mkfs);
     printf("Creating %u block groups...\n", mkfs->blk_grp_blknbr);
+    create_block_groups(mkfs, super);
 
 }
