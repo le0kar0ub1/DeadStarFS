@@ -7,12 +7,16 @@
 #include "def/typedef.h"
 #include "def/bitfield.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include "formats/ext2.h"
+#define FS_MAGIC 0xDFF5
+
+void ext2_handler(char const *disk);
 
 #endif

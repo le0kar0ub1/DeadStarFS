@@ -29,6 +29,10 @@ then format it using our mkfs implementation.
 
 `./mkfs --format=ext2 disk.img`
 
+Finaly mount the image it wherever you want.
+
+`mount disk.img myMountPoint`
+
 ## Epilogue
 
 Just for the fun.
