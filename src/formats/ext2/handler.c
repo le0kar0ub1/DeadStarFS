@@ -5,7 +5,7 @@
 #define MKFS_BLOCK_SIZE_LOG 0   /* 1024 << 0 = 1024 */
 
 /* To compute the size of the inodes table */
-#define MKFS_INODES_PER_TABLE_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ftfs_inode))
+#define MKFS_INODES_PER_TABLE_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_inode))
 
 /* To compute the size of the block group descriptor table */
 #define MKFS_GROUP_DESC_PER_TABLE_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_group_desc))
@@ -47,6 +47,9 @@
     + MKFS_BLOCK_SIZE /* Superblock */          \
     )
 
+/*
+** Get the image size
+*/
 static uint checkup(char const *disk)
 {
     struct stat st;
@@ -59,28 +62,73 @@ static uint checkup(char const *disk)
 }
 
 struct mkfsext2_t {
+    int fd;
     uint imgsize;
-    uint blk_grp_cnt;
-    uint blk_grp_table_sz;
+    uint blk_grp_blknbr;
+    uint blk_grp_table_blknbr;
 } __packed;
 
-void get_total_group(struct mkfsext2_t *mkfs)
+/*
+** Calculate the number of group we can create.
+** Being obviously limited by the given disk image.
+*/
+static void get_total_group(struct mkfsext2_t *mkfs)
 {
     size_t sz = mkfs->imgsize;
 
-    mkfs->blk_grp_cnt = 0x0;
-    mkfs->blk_grp_table_sz = 0x1;
+    mkfs->blk_grp_blknbr = 0x0;
+    mkfs->blk_grp_table_blknbr = 0x1;
     while (sz > MKFS_GROUP_SIZE)
     {
-        mkfs->blk_grp_cnt++;
+        mkfs->blk_grp_blknbr++;
         sz -= MKFS_GROUP_SIZE;
-        // if ()
+        if (mkfs->blk_grp_blknbr % MKFS_GROUP_DESC_PER_TABLE_BLOCK == 0)
+        {
+            if (sz < MKFS_GROUP_SIZE) {
+                break;
+            } else {
+                mkfs->blk_grp_table_blknbr++;
+                sz -= MKFS_GROUP_SIZE;
+            }
+        }
     }
 }
 
+/*
+** Generate all the block groups we can
+*/
+static void create_block_groups(struct mkfsext2_t *mkfs)
+{
+    struct ext2_group_desc gpdesc = { 0 };
+    uint bginc = 0x0;
+    uint curblk = 0x0;
+
+    if (lseek(mkfs->fd, MKFS_GROUP_TABLE_OFFSET, SEEK_SET) == -1)
+        pexit("lseek failed");
+    curblk = (MKFS_GROUP_TABLE_OFFSET / MKFS_BLOCK_SIZE) + mkfs->blk_grp_table_blknbr;
+    while (bginc < mkfs->blk_grp_blknbr)
+    {
+        gpdesc.bg_block_bitmap = curblk++;
+        gpdesc.bg_inode_bitmap = curblk++;
+        gpdesc.bg_inode_table = curblk++;
+
+        
+        gpdesc.bg_free_inodes_count = MKFS_INODES_PER_GROUP;
+        bginc++;
+    }
+}
+
+/*
+** Ext2 hookpoint
+*/
 void ext2_handler(char const *disk)
 {
     struct mkfsext2_t *mkfs = malloc(sizeof(struct mkfsext2_t));
+
+    if ((mkfs->fd = open(disk, O_WRONLY)) == -1)
+        pexit("Invalid given image disk");
     mkfs->imgsize = checkup(disk);
     get_total_group(mkfs);
+    printf("Creating %u block groups...\n", mkfs->blk_grp_blknbr);
+
 }

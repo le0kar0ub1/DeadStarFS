@@ -92,4 +92,6 @@ static inline __noreturn void pexit(char const *fmt, ...)
     exit(1);
 }
 
+#define static_assert(expr) extern char (*__static__(void))[sizeof(char[(!!(expr)) * 2 - 1])]
+
 #endif

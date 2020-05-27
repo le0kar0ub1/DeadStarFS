@@ -37,8 +37,9 @@ int main(int ac, char **av)
                     handleridx = j;
             }
         } else {
-            if (open(av[i], O_RDONLY) != -1)
-                disk = av[i];
+            if (disk)
+                pexit("Can format only one image by run");
+            disk = av[i];
         }
     }
     if (disk == NULL || handleridx == -1)

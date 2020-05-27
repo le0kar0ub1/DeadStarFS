@@ -137,6 +137,8 @@ struct ext2_super_block
     uint32_t s_reserved[162];        /* Padding to the end of the block */
 };
 
+static_assert(((sizeof(struct ext2_super_block) % 8) == 0));
+
 /*******************************************************************************
 #ifndef DEPEND
 #if ext2_super_block_size != 1024
@@ -159,6 +161,8 @@ struct ext2_group_desc
     uint16_t bg_pad;
     uint32_t bg_reserved[3];
 };
+
+static_assert(((sizeof(struct ext2_group_desc) % 8) == 0));
 
 /*******************************************************************************
 #ifndef DEPEND
@@ -196,6 +200,8 @@ struct ext2_inode
     uint16_t i_pad1;
     uint32_t l_i_reserved2[2];
 };
+
+static_assert(((sizeof(struct ext2_inode) % 8) == 0));
 
 /*******************************************************************************
 #ifndef DEPEND
