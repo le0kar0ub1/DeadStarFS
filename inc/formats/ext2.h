@@ -40,28 +40,26 @@
 /*
  * File types and file modes
  */
-#define S_IFDIR     0040000         // Directory
-#define S_IFCHR     0020000         // Character device
-#define S_IFBLK     0060000     // Block device
-#define S_IFREG     0100000         // Regular file
-#define S_IFIFO     0010000         // FIFO
-#define S_IFLNK     0120000     // Symbolic link
-#define S_IFSOCK    0140000     // Socket
+#define FS_IFDIR     0040000         // Directory
+#define FS_IFCHR     0020000         // Character device
+#define FS_IFBLK     0060000     // Block device
+#define FS_IFREG     0100000         // Regular file
+#define FS_IFIFO     0010000         // FIFO
+#define FS_IFLNK     0120000     // Symbolic link
+#define FS_IFSOCK    0140000     // Socket
 
-#define S_IFSHIFT   12
+#define FS_IFSHIFT   12
 
-#define T_IFDIR     (S_IFDIR >> S_IFSHIFT)
-#define T_IFCHR     (S_IFCHR >> S_IFSHIFT)
-#define T_IFBLK     (S_IFBLK >> S_IFSHIFT)
-#define T_IFREG     (S_IFREG >> S_IFSHIFT)
-#define T_IFIFO     (S_IFIFO >> S_IFSHIFT)
-#define T_IFLNK     (S_IFLNK >> S_IFSHIFT)
-#define T_IFSOCK    (S_IFSOCK >> S_IFSHIFT)
+#define T_IFDIR     (FS_IFDIR >> FS_IFSHIFT)
+#define T_IFCHR     (FS_IFCHR >> FS_IFSHIFT)
+#define T_IFBLK     (FS_IFBLK >> FS_IFSHIFT)
+#define T_IFREG     (FS_IFREG >> FS_IFSHIFT)
+#define T_IFIFO     (FS_IFIFO >> FS_IFSHIFT)
+#define T_IFLNK     (FS_IFLNK >> FS_IFSHIFT)
+#define T_IFSOCK    (FS_IFSOCK >> FS_IFSHIFT)
 
 
 #define ext2_group_desc_lg2size 5
-
-
 
 /*
  * super block
@@ -150,7 +148,8 @@ struct ext2_super_block
 /*
  *  ext2 group desc structure:
  */
-struct ext2_group_desc {
+struct ext2_group_desc
+{
     uint32_t bg_block_bitmap;   /* Blocks bitmap block */
     uint32_t bg_inode_bitmap;   /* Inodes bitmap block */
     uint32_t bg_inode_table;    /* Inodes table block */
@@ -173,7 +172,8 @@ struct ext2_group_desc {
 /*
  * ext2 inode structure:
  */
-struct ext2_inode {
+struct ext2_inode
+{
     uint16_t i_mode;        /* File mode */
     uint16_t i_uid;     /* Owner Uid */
     uint32_t i_size;        /* 4: Size in bytes */
@@ -207,7 +207,8 @@ struct ext2_inode {
 
 
 #define EXT2_NAME_LEN 255
-struct ext2_dir_entry {
+struct ext2_dir_entry
+{
     unsigned int    d_inode;        /* Inode number */
     unsigned short  d_rec_len;      /* Directory entry length */
     unsigned char   d_name_len;     /* Name length */
@@ -226,7 +227,8 @@ struct ext2_dir_entry {
  * This is the extent on-disk structure.
  * It's used at the bottom of the tree.
  */
-struct ext4_extent {
+struct ext4_extent
+{
     uint32_t ee_block;          /* first logical block extent covers */
     uint16_t ee_len;            /* number of blocks covered by extent */
     uint16_t ee_start_hi;   /* high 16 bits of physical block */
@@ -237,7 +239,8 @@ struct ext4_extent {
  * This is index on-disk structure.
  * It's used at all the levels except the bottom.
  */
-struct ext4_extent_idx {
+struct ext4_extent_idx
+{
     uint32_t ei_block;          /* index covers logical blocks from 'block' */
     uint32_t ei_leaf_lo;    /* pointer to the physical block of the next *
                  * level. leaf or next index could be there */
@@ -248,7 +251,8 @@ struct ext4_extent_idx {
 /*
  * Each block (leaves and indexes), even inode-stored has header.
  */
-struct ext4_extent_header {
+struct ext4_extent_header
+{
     uint16_t eh_magic;          /* probably will support different formats */
     uint16_t eh_entries;    /* number of valid entries */
     uint16_t eh_max;            /* capacity of store in entries */
@@ -265,7 +269,8 @@ struct ext4_extent_header {
 /*
  * The ext2 super block information in memory
  */
-struct ext2_sb_info {
+struct ext2_sb_info
+{
     uint32_t s_inodes_per_block;/* Number of inodes per block */
     uint32_t s_inodes_per_group;/* Number of inodes in a group */
     uint32_t s_blocks_per_group;/* Number of blocks in a group */

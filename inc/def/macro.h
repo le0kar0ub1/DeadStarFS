@@ -6,8 +6,10 @@
 #include <unistd.h>
 #include <math.h>
 #include <limits.h>
-#include "assert.h"
+#include <stdarg.h>
+#include <stdio.h>
 #include "typedef.h"
+#include "keyword.h"
 
 #define decto(x) while (x --> 0)
 #define incto(x, y) while (x ++< y)
@@ -78,6 +80,16 @@ static inline bool cmp(int x, int y)
 static inline long absl(long x)
 {
     return (x *= (x < 0x0) ? -0x1 : 0x1);
+}
+
+static inline __noreturn void pexit(char const *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    vprintf(fmt, va);
+    va_end(va);
+    printf("\n");
+    exit(1);
 }
 
 #endif
