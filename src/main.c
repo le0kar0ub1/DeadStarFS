@@ -27,7 +27,7 @@ int main(int ac, char **av)
 
     if ((ac == 2 && (!strcmp(av[1], "--help") || !strcmp(av[1], "-h"))) || ac != 3)
         usage();
-    for (u32_t i = 0; av[i]; i++)
+    for (u32_t i = 1; av[i]; i++)
     {
         if (strlen(av[i]) > strlen(FORMATOPT) + 2 &&
         !strncmp(av[i], FORMATOPT, strlen(FORMATOPT))) {

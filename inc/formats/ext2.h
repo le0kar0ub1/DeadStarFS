@@ -105,6 +105,12 @@ struct ext2_super_block
     uint8_t  s_prealloc_blocks;         /* Nr of blocks to try to preallocate*/
     uint8_t  s_prealloc_dir_blocks;
     uint16_t s_reserved_gdt_blocks; /* Per group desc for online growth */
+};
+
+static_assert(((sizeof(struct ext2_super_block) % 8) == 0));
+
+struct ext2_super_block_extend
+{
     /*
      * Journaling support valid if EXT4_FEATURE_COMPAT_HAS_JOURNAL set.
      */
@@ -137,7 +143,7 @@ struct ext2_super_block
     uint32_t s_reserved[162];        /* Padding to the end of the block */
 };
 
-static_assert(((sizeof(struct ext2_super_block) % 8) == 0));
+static_assert(((sizeof(struct ext2_super_block_extend) % 8) == 0));
 
 /*******************************************************************************
 #ifndef DEPEND
