@@ -49,6 +49,7 @@
 
 #define ERROR_MSG_LSEEK "lseek failed"
 #define ERROR_MSG_WRITE "write failed"
+#define ERROR_MSG_ALLOC "alloc failed"
 
 /*
 ** Get the image size
@@ -146,48 +147,83 @@ static void bitmap_setxbit(int fd, int blknbr, int bits)
         pexit(ERROR_MSG_LSEEK);
 }
 
-static ext2_inode *generate_inode(void)
+static struct ext2_inode *generate_inode(void)
 {
     struct ext2_inode *inode = calloc(sizeof(struct ext2_inode), 1);
 
-    inode->i_mode         = FS_IFDIR | S_IRWXU;
-    inode->i_uid          = 0x0;
-    inode->i_size         = MKFS_BLOCK_SIZE;
-    inode->i_atime        = 0x0;
-    inode->i_ctime        = 0x0;
-    inode->i_mtime        = 0x0;
-    inode->i_dtime        = 0x0;
-    inode->i_gid          = 0x0;
-    inode->i_links_count  = 0x2; // . & ..
-    inode->i_blocks       = MKFS_BLOCK_SIZE / 512;
-    inode->i_flags        = 0x0;
-    // inode->i_block        = {0x0}; // calloc
-    inode->i_version      = 0x0;
-    inode->i_file_acl     = 0x0;
-    inode->i_dir_acl      = 0x0;
-    inode->i_faddr        = 0x0;
-    inode->l_i_frag       = 0x0;
-    inode->l_i_fsize      = 0x0;
+    if (!inode)
+        pexit(ERROR_MSG_ALLOC);
+    inode->mode         = FS_IFDIR | S_IRWXU;
+    inode->uid          = 0x0;
+    inode->size         = MKFS_BLOCK_SIZE;
+    inode->atime        = 0x0;
+    inode->ctime        = 0x0;
+    inode->mtime        = 0x0;
+    inode->dtime        = 0x0;
+    inode->gid          = 0x0;
+    inode->links_count  = 0x2; // . & ..
+    inode->block_count  = MKFS_BLOCK_SIZE / 512;
+    inode->flags        = 0x0;
+    // inode->i_blocks        = {0x0}; // calloc
+    inode->version      = 0x0;
+    inode->file_acl     = 0x0;
+    inode->dir_acl      = 0x0;
+    inode->faddr        = 0x0;
+    inode->frag         = 0x0;
+    inode->fsize        = 0x0;
     return (inode);
+}
+
+struct ext2_rootdir
+{
+    struct ext2_directory cur;
+    struct ext2_directory back;
+};
+
+static struct ext2_rootdir *generate_root_directory(void)
+{
+    struct ext2_rootdir *dir = calloc(sizeof(struct ext2_rootdir), 1);
+
+    if (!dir)
+        pexit(ERROR_MSG_ALLOC);
+    dir->cur.inode     = 2;
+    dir->cur.rec_len   = 12;
+    dir->cur.name_len  = 1;
+    dir->cur.file_type = 0x0;
+    strcpy(dir->cur.name, ".");
+
+    dir->back.inode     = 2;
+    dir->back.rec_len   = MKFS_BLOCK_SIZE - 12;
+    dir->back.name_len  = 2;
+    dir->back.file_type = 0x0;
+    strcpy(dir->back.name, "..");
+    return (dir);
 }
 
 static void create_root_inode(int fd, struct ext2_group_desc *bgdesc)
 {
     off_t pos = lseek(fd, 0, SEEK_CUR);
+    struct ext2_inode *inode = generate_inode();
+    struct ext2_rootdir *dir = generate_root_directory();
 
     if (!pos)
         pexit(ERROR_MSG_LSEEK);
-    if (!lseek(fd, blknbr * MKFS_BLOCK_SIZE, SEEK_SET))
+    inode->blocks[0] = bgdesc->bg_inode_table + MKFS_INODES_TABLE_BLOCKS;
+
+    if (!lseek(fd, inode->blocks[0] * MKFS_BLOCK_SIZE, SEEK_SET))
         pexit(ERROR_MSG_LSEEK);
-    while (bits > 0)
-    {
-        wr = (1 << (bits % 9)) - 1;
-        if (write(fd, &wr, 1) != 1)
-            pexit(ERROR_MSG_WRITE);
-        bits -= 8;
-    }
+    if (!write(fd, dir, sizeof(struct ext2_rootdir)))
+        pexit(ERROR_MSG_WRITE);
+
+    if (!lseek(fd, bgdesc->bg_inode_table * MKFS_BLOCK_SIZE+ sizeof(struct ext2_inode), SEEK_SET))
+        pexit(ERROR_MSG_LSEEK);
+    if (!write(fd, inode, sizeof(struct ext2_inode)))
+        pexit(ERROR_MSG_WRITE);
+    
     if (!lseek(fd, pos, SEEK_SET))
         pexit(ERROR_MSG_LSEEK);
+    free(inode);
+    free(dir);
 }
 
 /*
@@ -257,7 +293,7 @@ void ext2_handler(char const *disk)
     struct ext2_super_block *super = calloc(sizeof(struct ext2_super_block), 1);
 
     if (!mkfs || !super)
-        pexit("malloc failed");
+        pexit(ERROR_MSG_ALLOC);
     if ((mkfs->fd = open(disk, O_WRONLY)) == -1)
         pexit("Invalid given image disk");
     mkfs->imgsize = checkup(disk);

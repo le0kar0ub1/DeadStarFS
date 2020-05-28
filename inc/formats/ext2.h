@@ -184,27 +184,27 @@ static_assert(((sizeof(struct ext2_group_desc) % 8) == 0));
  */
 struct ext2_inode
 {
-    uint16_t i_mode;        /* File mode */
-    uint16_t i_uid;     /* Owner Uid */
-    uint32_t i_size;        /* 4: Size in bytes */
-    uint32_t i_atime;       /* Access time */
-    uint32_t i_ctime;       /* 12: Creation time */
-    uint32_t i_mtime;       /* Modification time */
-    uint32_t i_dtime;       /* 20: Deletion Time */
-    uint16_t i_gid;     /* Group Id */
-    uint16_t i_links_count; /* 24: Links count */
-    uint32_t i_blocks;      /* Blocks count */
-    uint32_t i_flags;       /* 32: File flags */
-    uint32_t l_i_reserved1;
-    uint32_t i_block[EXT2_N_BLOCKS];    /* 40: Pointers to blocks */
-    uint32_t i_version;     /* File version (for NFS) */
-    uint32_t i_file_acl;    /* File ACL */
-    uint32_t i_dir_acl;     /* Directory ACL */
-    uint32_t i_faddr;       /* Fragment address */
-    uint8_t  l_i_frag;          /* Fragment number */
-    uint8_t  l_i_fsize;         /* Fragment size */
-    uint16_t i_pad1;
-    uint32_t l_i_reserved2[2];
+    uint16_t mode;        /* File mode */
+    uint16_t uid;     /* Owner Uid */
+    uint32_t size;        /* 4: Size in bytes */
+    uint32_t atime;       /* Access time */
+    uint32_t ctime;       /* 12: Creation time */
+    uint32_t mtime;       /* Modification time */
+    uint32_t dtime;       /* 20: Deletion Time */
+    uint16_t gid;     /* Group Id */
+    uint16_t links_count; /* 24: Links count */
+    uint32_t block_count;      /* Blocks count */
+    uint32_t flags;       /* 32: File flags */
+    uint32_t i_reserved1;
+    uint32_t blocks[EXT2_N_BLOCKS];    /* 40: Pointers to blocks */
+    uint32_t version;     /* File version (for NFS) */
+    uint32_t file_acl;    /* File ACL */
+    uint32_t dir_acl;     /* Directory ACL */
+    uint32_t faddr;       /* Fragment address */
+    uint8_t  frag;          /* Fragment number */
+    uint8_t  fsize;         /* Fragment size */
+    uint16_t pad1;
+    uint32_t reserved2[2];
 };
 
 static_assert(((sizeof(struct ext2_inode) % 8) == 0));
@@ -219,13 +219,13 @@ static_assert(((sizeof(struct ext2_inode) % 8) == 0));
 
 
 #define EXT2_NAME_LEN 255
-struct ext2_dir_entry
+struct ext2_directory
 {
-    unsigned int    d_inode;        /* Inode number */
-    unsigned short  d_rec_len;      /* Directory entry length */
-    unsigned char   d_name_len;     /* Name length */
-    unsigned char   d_file_type;
-    char    d_name[EXT2_NAME_LEN];          /* File name */
+    unsigned int    inode;        /* Inode number */
+    unsigned short  rec_len;      /* Directory entry length */
+    unsigned char   name_len;     /* Name length */
+    unsigned char   file_type;
+    char     name[EXT2_NAME_LEN]; /* File name */
 };
 
 /*******************************************************************************
