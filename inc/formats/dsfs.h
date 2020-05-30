@@ -1,5 +1,5 @@
-#ifndef __dsfs_FS_H
-#define __dsfs_FS_H
+#ifndef __DSFS_FS_H
+#define __DSFS_FS_H
 
 #include "mkfs.h"
 #include <stdint.h>
@@ -30,15 +30,13 @@
 
 #define FS_IFSHIFT   12
 
-#define T_IFDIR     (FS_IFDIR >> FS_IFSHIFT)
-#define T_IFCHR     (FS_IFCHR >> FS_IFSHIFT)
-#define T_IFBLK     (FS_IFBLK >> FS_IFSHIFT)
-#define T_IFREG     (FS_IFREG >> FS_IFSHIFT)
-#define T_IFIFO     (FS_IFIFO >> FS_IFSHIFT)
-#define T_IFLNK     (FS_IFLNK >> FS_IFSHIFT)
-#define T_IFSOCK    (FS_IFSOCK >> FS_IFSHIFT)
-
-#define dsfs_group_desc_lg2size 5
+#define T_IFDIR   (FS_IFDIR  >> FS_IFSHIFT)
+#define T_IFCHR   (FS_IFCHR  >> FS_IFSHIFT)
+#define T_IFBLK   (FS_IFBLK  >> FS_IFSHIFT)
+#define T_IFREG   (FS_IFREG  >> FS_IFSHIFT)
+#define T_IFIFO   (FS_IFIFO  >> FS_IFSHIFT)
+#define T_IFLNK   (FS_IFLNK  >> FS_IFSHIFT)
+#define T_IFSOCK  (FS_IFSOCK >> FS_IFSHIFT)
 
 /*
  * super block
