@@ -5,14 +5,14 @@
 #define MKFS_BLOCK_SIZE_LOG 0   /* 1024 << 0 = 1024 */
 
 /* To compute the size of the inodes table */
-#define MKFS_INODES_PER_TABLE_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_inode))
+#define MKFS_INODES_PER_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_inode))
 
 /* To compute the size of the block group descriptor table */
-#define MKFS_GROUP_DESC_PER_TABLE_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_group_desc))
+#define MKFS_GROUP_DESC_PER_BLOCK (MKFS_BLOCK_SIZE / sizeof(struct ext2_group_desc))
 
 #define MKFS_BLOCKS_PER_GROUP     (MKFS_BLOCK_SIZE * 8) /* max of block bitmap block */
 #define MKFS_INODES_TABLE_BLOCKS  (MKFS_BLOCKS_PER_GROUP / 16) /* let's use 1/16 of the blocks for the inode table */
-#define MKFS_INODES_PER_GROUP     (MKFS_INODES_TABLE_BLOCKS * MKFS_INODES_PER_TABLE_BLOCK)
+#define MKFS_INODES_PER_GROUP     (MKFS_INODES_TABLE_BLOCKS * MKFS_INODES_PER_BLOCK)
 #define MKFS_GROUP_SIZE           (MKFS_BLOCKS_PER_GROUP * MKFS_BLOCK_SIZE)
 
 /* The smallest group we support : it has only 1 data block */
@@ -51,6 +51,18 @@
 #define ERROR_MSG_WRITE "write failed"
 #define ERROR_MSG_ALLOC "alloc failed"
 
+#define safe_lseekset(x, y)                 \
+{                                           \
+        if (lseek(x, y , SEEK_SET) == - 1)  \
+            pexit(ERROR_MSG_LSEEK);         \
+}
+
+#define safe_write(x, y, z)         \
+{                                   \
+        if (write(x, y , z) == - 1) \
+            pexit(ERROR_MSG_WRITE); \
+}
+
 /*
 ** Get the image size
 */
@@ -65,7 +77,8 @@ static off_t checkup(char const *disk)
     return (st.st_size);
 }
 
-struct mkfsext2_t {
+struct mkfsext2_t
+{
     int fd;
     off_t imgsize;
     uint blk_grp_blknbr;
@@ -88,7 +101,7 @@ static void get_total_group(struct mkfsext2_t *mkfs)
     {
         mkfs->blk_grp_blknbr++;
         sz -= MKFS_GROUP_SIZE;
-        if (mkfs->blk_grp_blknbr % MKFS_GROUP_DESC_PER_TABLE_BLOCK == 0)
+        if (mkfs->blk_grp_blknbr % MKFS_GROUP_DESC_PER_BLOCK == 0)
         {
             if (sz < MKFS_GROUP_SIZE) {
                 sz = 0x0;
@@ -278,6 +291,9 @@ static void create_block_groups(struct mkfsext2_t *mkfs, struct ext2_super_block
 
 static void create_block_super(struct mkfsext2_t *mkfs, struct ext2_super_block *super)
 {
+    super->s_magic = EXT2_SUPER_MAGIC;
+    super->s_state = 1; // clean
+    super->s_errors = 1; // continue if error
     if (!lseek(mkfs->fd, MKFS_START_OFFSET, SEEK_SET))
         pexit(ERROR_MSG_LSEEK);
     if (!write(mkfs->fd, super, sizeof(struct ext2_super_block)))

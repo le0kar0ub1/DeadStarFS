@@ -10,15 +10,13 @@
 #define EXT2_DYNAMIC_REV        1       // V2 format w/ dynamic inode sizes
 #define EXT2_GOOD_OLD_INODE_SIZE 128
 
-// Special inode numbers
 #define EXT2_BAD_INO         1  // Bad blocks inode
 #define EXT2_ROOT_INO        2  // Root inode
-#define EXT2_BOOT_LOADER_INO     5  // Boot loader inode
+#define EXT2_BOOT_LOADER_INO 5  // Boot loader inode
 #define EXT2_UNDEL_DIR_INO   6  // Undelete directory inode
 #define EXT3_RESIZE_INO      7  // Reserved group descriptors inode
 #define EXT3_JOURNAL_INO     8  // Journal inode
 
-// We're readonly, so we only care about incompat features.
 #define EXT2_FEATURE_INCOMPAT_COMPRESSION   0x0001
 #define EXT2_FEATURE_INCOMPAT_FILETYPE      0x0002
 #define EXT3_FEATURE_INCOMPAT_RECOVER       0x0004
@@ -57,7 +55,6 @@
 #define T_IFIFO     (FS_IFIFO >> FS_IFSHIFT)
 #define T_IFLNK     (FS_IFLNK >> FS_IFSHIFT)
 #define T_IFSOCK    (FS_IFSOCK >> FS_IFSHIFT)
-
 
 #define ext2_group_desc_lg2size 5
 
@@ -99,8 +96,8 @@ struct ext2_super_block
     uint32_t s_feature_incompat;    /* incompatible feature set */
     uint32_t s_feature_ro_compat;   /* readonly-compatible feature set */
     uint8_t  s_uuid[16];        /* 128-bit uuid for volume */
-    char  s_volume_name[16];            /* volume name */
-    char  s_last_mounted[64];           /* directory where last mounted */
+    char     s_volume_name[16];         /* volume name */
+    char     s_last_mounted[64];        /* directory where last mounted */
     uint32_t s_algorithm_usage_bitmap;  /* For compression */
     uint8_t  s_prealloc_blocks;         /* Nr of blocks to try to preallocate*/
     uint8_t  s_prealloc_dir_blocks;

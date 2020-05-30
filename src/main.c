@@ -15,6 +15,7 @@ struct formats_t
 static const struct formats_t formats[] =
 {
     {"ext2", ext2_handler},
+    {"dsfs", dsfs_handler},
     {NULL, NULL}
 };
 

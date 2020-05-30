@@ -15,8 +15,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#define FS_MAGIC 0xD5F5
-
 void ext2_handler(char const *disk);
+void dsfs_handler(char const *disk);
 
 #endif

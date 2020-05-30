@@ -12,11 +12,12 @@ CCEXT		:=	.c
 
 BINARY		:=	mkfs
 
-LNKFLAGS	=	-o $(BINARY)				\
+LNKFLAGS	=	-o $(BINARY)
 
 SRCDIR		:=	src									\
 				$(addprefix src/formats/,			\
 								ext2				\
+								dsfs				\
 				)
 
 INCDIR		=	inc
