@@ -17,10 +17,10 @@ Is a part of `DeadStarFS` project.
 
 A list of format handled by this mkfs implementation.
 
-| Format   | Documentation                                                   |
-|----------|-----------------------------------------------------------------|
-|    ext2  | [Extend FileSystem 2](https://wiki.osdev.org/Ext2)              |
-|    dsfs  | [DeadStarFS](doc/dsfs.md)                                       |
+| Format   |    State                     | Documentation                                                  |
+|----------|------------------------------|----------------------------------------------------------------|
+|    ext2  |    non-functionnal           | [Extend FileSystem 2](https://wiki.osdev.org/Ext2)             |
+|    dsfs  |    non-functionnal           | [DeadStarFS](doc/dsfs.md)                                      |
 
 ## Use it
 
