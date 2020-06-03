@@ -12,11 +12,11 @@ This is, by design, a non-scalable and light weight FS.
 
 ## Data model
 
-| Offset      |   size     |   Field             | Description              |
+| Offset      | size       | Field               | Description              |
 |-------------|------------|---------------------|--------------------------|
-|  0          | 1024       | Boot Record         | Boot Record              |
-|  1024       | 1024       | Super Block         | Super Block              |
-|  2048       | 
+| 0           | 1024       | Boot Record         | Boot Record              |
+| 1024        | 1024       | Super Block         | Super Block              |
+| 2048        | 
 
 The boot record is fully empty and unused.
 

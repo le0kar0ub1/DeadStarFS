@@ -8,8 +8,10 @@
 
 #define DSFS_BLOCK_SIZE 1024
 
-#define DSFS_GOOD_OLD_REV       0       /* The good old (original) format */
-#define DSFS_DYNAMIC_REV        1       /* V2 format w/ dynamic inode sizes */
+#define DSFS_NAME_LEN   255
+
+#define DSFS_GOOD_OLD_REV        0    /* The good old (original) format */
+#define DSFS_DYNAMIC_REV         1    /* V2 format w/ dynamic inode sizes */
 #define DSFS_GOOD_OLD_INODE_SIZE 128
 
 #define DSFS_BAD_INO         1  /* Bad blocks inode */
@@ -20,8 +22,8 @@
 #define EXT3_JOURNAL_INO     8  /* Journal inode */
 
 /*
- * File types and file modes
- */
+** File types and file modes
+*/
 #define FS_IFDIR     0040000    /* Directory */
 #define FS_IFCHR     0020000    /* Character device */
 #define FS_IFBLK     0060000    /* Block device */
@@ -41,51 +43,53 @@
 #define T_IFSOCK  (FS_IFSOCK >> FS_IFSHIFT)
 
 /*
- * super block
- */
-struct dsfs_superblock
+** super block
+*/
+struct super_block
 {
-    uint32_t s_inodes_count;            /* Inodes count */
-    uint32_t s_blocks_count;            /* Blocks count */
-    uint32_t s_r_blocks_count;          /* Reserved blocks count */
-    uint32_t s_free_blocks_count;       /* Free blocks count */
-    uint32_t s_free_inodes_count;       /* Free inodes count */
-    uint32_t s_first_data_block;        /* First Data Block */
-    uint32_t s_log_block_size;          /* Block size */
-    uint32_t s_log_frag_size;           /* Fragment size */
-    uint32_t s_blocks_per_group;        /* # Blocks per group */
-    uint32_t s_frags_per_group;         /* # Fragments per group */
-    uint32_t s_inodes_per_group;        /* # Inodes per group */
-    uint32_t s_mtime;                   /* Mount time */
-    uint32_t s_wtime;                   /* Write time */
-    uint16_t s_mnt_count;               /* Mount count */
-    int16_t  s_max_mnt_count;           /* Maximal mount count */
-    uint16_t s_magic;                   /* Magic signature */
-    uint16_t s_state;                   /* File system state */
-    uint16_t s_errors;                  /* Behaviour when detecting errors */
-    uint16_t s_minor_rev_level;
-    uint32_t s_lastcheck;               /* time of last check */
-    uint32_t s_checkinterval;           /* max. time between checks */
-    uint32_t s_creator_os;              /* OS */
-    uint32_t s_rev_level;               /* Revision level */
-    uint16_t s_def_resuid;              /* Default uid for reserved blocks */
-    uint16_t s_def_resgid;              /* Default gid for reserved blocks */
+    uint32_t inodes_count;            /* Inodes count */
+    uint32_t blocks_count;            /* Blocks count */
+    uint32_t r_blocks_count;          /* Reserved blocks count */
+    uint32_t free_blocks_count;       /* Free blocks count */
+    uint32_t free_inodes_count;       /* Free inodes count */
+    uint32_t first_data_block;        /* First Data Block */
+    uint32_t log_block_size;          /* Block size */
+    uint32_t log_frag_size;           /* Fragment size */
+    uint32_t blocks_per_group;        /* # Blocks per group */
+    uint32_t frags_per_group;         /* # Fragments per group */
+    uint32_t inodes_per_group;        /* # Inodes per group */
+    uint32_t mtime;                   /* Mount time */
+    uint32_t wtime;                   /* Write time */
+    uint16_t mnt_count;               /* Mount count */
+    int16_t  max_mnt_count;           /* Maximal mount count */
+    uint16_t magic;                   /* Magic signature */
+    uint16_t state;                   /* File system state */
+    uint16_t errors;                  /* Behaviour when detecting errors */
+    uint16_t minor_rev_level;
+    uint32_t lastcheck;               /* time of last check */
+    uint32_t checkinterval;           /* max. time between checks */
+    uint32_t creator_os;              /* OS */
+    uint32_t rev_level;               /* Revision level */
+    uint16_t def_resuid;              /* Default uid for reserved blocks */
+    uint16_t def_resgid;              /* Default gid for reserved blocks */
 
-    uint32_t s_first_ino;               /* First non-reserved inode */
-    uint16_t s_inode_size;              /* size of inode structure */
-    uint16_t s_block_group_nr;          /* block group # of this superblock */
-    uint32_t s_feature_compat;          /* compatible feature set */
-    uint32_t s_feature_incompat;        /* incompatible feature set */
-    uint32_t s_feature_ro_compat;       /* readonly-compatible feature set */
-    uint8_t  s_uuid[16];                /* 128-bit uuid for volume */
-    char     s_volume_name[16];         /* volume name */
-    char     s_last_mounted[64];        /* directory where last mounted */
-    uint32_t s_algorithm_usage_bitmap;  /* For compression */
-    uint8_t  s_prealloc_blocks;         /* Nr of blocks to try to preallocate*/
+    uint32_t first_ino;               /* First non-reserved inode */
+    uint16_t inode_size;              /* size of inode structure */
+    uint16_t block_group_nr;          /* block group # of this superblock */
+    uint32_t feature_compat;          /* compatible feature set */
+    uint32_t feature_incompat;        /* incompatible feature set */
+    uint32_t feature_ro_compat;       /* readonly-compatible feature set */
+    uint8_t  uuid[16];                /* 128-bit uuid for volume */
+    char     volume_name[16];         /* volume name */
+    char     last_mounted[64];        /* directory where last mounted */
+    uint32_t algorithm_usage_bitmap;  /* For compression */
+    uint8_t  prealloc_blocks;         /* Nr of blocks to try to preallocate*/
 };
 
+typedef struct super_block dsfs_superblock_t;
+
 /*
-**  dsfs group desc structure:
+**  dsfs group desc structure
 */
 struct dsfs_group_desc
 {
@@ -102,53 +106,40 @@ struct dsfs_group_desc
 static_assert(((sizeof(struct dsfs_group_desc) % 8) == 0));
 
 /*
-** dsfs inode structure:
+** dsfs inode structure
 */
-struct dsfs_inode
+struct inode
 {
     uint16_t mode;          /* File mode */
     uint16_t uid;           /* Owner Uid */
-    uint32_t size;          /* 4: Size in bytes */
+    uint32_t size;          /* Size in bytes */
     uint32_t atime;         /* Access time */
-    uint32_t ctime;         /* 12: Creation time */
+    uint32_t ctime;         /* Creation time */
     uint32_t mtime;         /* Modification time */
-    uint32_t dtime;         /* 20: Deletion Time */
+    uint32_t dtime;         /* Deletion Time */
     uint16_t gid;           /* Group Id */
-    uint16_t links_count;   /* 24: Links count */
+    uint16_t links_count;   /* Links count */
     uint32_t block_count;   /* Blocks count */
-    uint32_t flags;         /* 32: File flags */
+    uint32_t flags;         /* File flags */
     uint32_t _reserved1;
-    uint32_t blocks[0x80];  /* 40: Pointers to blocks */
+    uint32_t blocks[0x80];  /* Pointers to blocks */
     uint32_t version;       /* File version (for NFS) */
     uint32_t file_acl;      /* File ACL */
     uint32_t dir_acl;       /* Directory ACL */
     uint32_t _reserved2;
 };
 
-static_assert(((sizeof(struct dsfs_inode) % 8) == 0));
+static_assert(((sizeof(struct inode) % 8) == 0));
 
-#define dsfs_NAME_LEN 255
+typedef struct inode dsfs_inode_t;
+
 struct dsfs_directory
 {
     unsigned int    inode;        /* Inode number */
     unsigned short  rec_len;      /* Directory entry length */
     unsigned char   name_len;     /* Name length */
     unsigned char   file_type;
-    char     name[dsfs_NAME_LEN]; /* File name */
-};
-
-/*
-** The dsfs super block information in memory
-*/
-struct dsfs_sb_info
-{
-    uint32_t s_inodes_per_block;    /* Number of inodes per block */
-    uint32_t s_inodes_per_group;    /* Number of inodes in a group */
-    uint32_t s_blocks_per_group;    /* Number of blocks in a group */
-    uint32_t s_desc_per_block;      /* Number of group descriptors per block */
-    uint32_t s_groups_count;        /* Number of groups in the fs */
-    uint32_t s_first_data_block;    /* First Data Block */
-    int      s_inode_size;
+    char     name[DSFS_NAME_LEN]; /* File name */
 };
 
 /*
