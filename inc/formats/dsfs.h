@@ -10,9 +10,21 @@
 
 #define DSFS_NAME_LEN   255
 
+#define DSFS_FIRST_INODE_OFF   2048
+#define DSFS_FIRST_DATABLK_OFF 3072
+
+#define DSFS_SUPERBLOCK_OFF 1024
+#define DSFS_SUPERBLOCK_SZ  1024
+
 #define DSFS_GOOD_OLD_REV        0    /* The good old (original) format */
 #define DSFS_DYNAMIC_REV         1    /* V2 format w/ dynamic inode sizes */
 #define DSFS_GOOD_OLD_INODE_SIZE 128
+
+enum superblock_state
+{
+    DSFS_STATE_NORMAL    = 0x0,
+    DSFS_STATE_CORRUPTED = 0x1,
+};
 
 #define DSFS_BAD_INO         1  /* Bad blocks inode */
 #define DSFS_ROOT_INO        2  /* Root inode */
@@ -49,19 +61,11 @@ struct super_block
 {
     uint32_t inodes_count;            /* Inodes count */
     uint32_t blocks_count;            /* Blocks count */
-    uint32_t r_blocks_count;          /* Reserved blocks count */
-    uint32_t free_blocks_count;       /* Free blocks count */
-    uint32_t free_inodes_count;       /* Free inodes count */
     uint32_t first_data_block;        /* First Data Block */
-    uint32_t log_block_size;          /* Block size */
-    uint32_t log_frag_size;           /* Fragment size */
-    uint32_t blocks_per_group;        /* # Blocks per group */
-    uint32_t frags_per_group;         /* # Fragments per group */
-    uint32_t inodes_per_group;        /* # Inodes per group */
+    uint32_t first_inode;
+    uint32_t block_size;              /* Block size */
     uint32_t mtime;                   /* Mount time */
     uint32_t wtime;                   /* Write time */
-    uint16_t mnt_count;               /* Mount count */
-    int16_t  max_mnt_count;           /* Maximal mount count */
     uint16_t magic;                   /* Magic signature */
     uint16_t state;                   /* File system state */
     uint16_t errors;                  /* Behaviour when detecting errors */
@@ -72,38 +76,9 @@ struct super_block
     uint32_t rev_level;               /* Revision level */
     uint16_t def_resuid;              /* Default uid for reserved blocks */
     uint16_t def_resgid;              /* Default gid for reserved blocks */
-
-    uint32_t first_ino;               /* First non-reserved inode */
-    uint16_t inode_size;              /* size of inode structure */
-    uint16_t block_group_nr;          /* block group # of this superblock */
-    uint32_t feature_compat;          /* compatible feature set */
-    uint32_t feature_incompat;        /* incompatible feature set */
-    uint32_t feature_ro_compat;       /* readonly-compatible feature set */
-    uint8_t  uuid[16];                /* 128-bit uuid for volume */
-    char     volume_name[16];         /* volume name */
-    char     last_mounted[64];        /* directory where last mounted */
-    uint32_t algorithm_usage_bitmap;  /* For compression */
-    uint8_t  prealloc_blocks;         /* Nr of blocks to try to preallocate*/
 };
 
 typedef struct super_block dsfs_superblock_t;
-
-/*
-**  dsfs group desc structure
-*/
-struct dsfs_group_desc
-{
-    uint32_t bg_block_bitmap;       /* Blocks bitmap block */
-    uint32_t bg_inode_bitmap;       /* Inodes bitmap block */
-    uint32_t bg_inode_table;        /* Inodes table block */
-    uint16_t bg_free_blocks_count;  /* Free blocks count */
-    uint16_t bg_free_inodes_count;  /* Free inodes count */
-    uint16_t bg_used_dirs_count;    /* Directories count */
-    uint16_t bg_pad;
-    uint32_t bg_reserved[3];
-};
-
-static_assert(((sizeof(struct dsfs_group_desc) % 8) == 0));
 
 /*
 ** dsfs inode structure
@@ -121,12 +96,9 @@ struct inode
     uint16_t links_count;   /* Links count */
     uint32_t block_count;   /* Blocks count */
     uint32_t flags;         /* File flags */
-    uint32_t _reserved1;
-    uint32_t blocks[0x80];  /* Pointers to blocks */
     uint32_t version;       /* File version (for NFS) */
-    uint32_t file_acl;      /* File ACL */
-    uint32_t dir_acl;       /* Directory ACL */
-    uint32_t _reserved2;
+    uint32_t inode_id[16];      /* a uniqu inode id */
+    uint64_t next;
 };
 
 static_assert(((sizeof(struct inode) % 8) == 0));
@@ -145,12 +117,12 @@ struct dsfs_directory
 /*
 ** A DSFS datablock
 */
-struct dsfs_datablock_t
+struct dsfs_datablock
 {
-    uint8   data[DSFS_BLOCK_SIZE - sizeof(uint64)];
-    uint64  next;
+    uint8_t   data[DSFS_BLOCK_SIZE - sizeof(uint64)];
+    uint64_t  next;
 };
 
-static_assert(sizeof(struct dsfs_datablock_t) == DSFS_BLOCK_SIZE);
+static_assert(sizeof(struct dsfs_datablock) == DSFS_BLOCK_SIZE);
 
 #endif /* dsfs_fs.h */

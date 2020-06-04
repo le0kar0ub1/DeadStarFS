@@ -47,22 +47,6 @@
     + MKFS_BLOCK_SIZE /* Superblock */          \
     )
 
-#define ERROR_MSG_LSEEK "lseek failed"
-#define ERROR_MSG_WRITE "write failed"
-#define ERROR_MSG_ALLOC "alloc failed"
-
-#define safe_lseekset(x, y)                 \
-{                                           \
-        if (lseek(x, y , SEEK_SET) == - 1)  \
-            pexit(ERROR_MSG_LSEEK);         \
-}
-
-#define safe_write(x, y, z)         \
-{                                   \
-        if (write(x, y , z) == - 1) \
-            pexit(ERROR_MSG_WRITE); \
-}
-
 /*
 ** Get the image size
 */

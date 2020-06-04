@@ -4,7 +4,7 @@
 
 BUILD		:=	build
 
-CCEXT		:=	gcc
+CC			:=	gcc
 
 OBJEXT		:=	.o
 
@@ -24,7 +24,7 @@ INCDIR		=	inc
 
 CCFLAGS		=	-I $(INCDIR)						\
 				-Wall								\
-				-Wextra				 				\
+				-Wextra								\
 				-Wnested-externs					\
 				-Winline							\
 				-Wpragmas							\
@@ -37,7 +37,7 @@ CCFLAGS		=	-I $(INCDIR)						\
 				-Wunused							\
 				-Wmissing-field-initializers		\
 				-Wswitch-enum						\
-				-Wshadow				 			\
+				-Wshadow							\
 				-Wuninitialized				 		\
 				-Wmissing-declarations				\
 				-Wmissing-prototypes				\
@@ -67,3 +67,7 @@ $(BUILD)/%$(OBJEXT): %$(CCEXT)
 	@mkdir -p $(shell dirname $@)
 	@$(CC) $(CCFLAGS) -c $< -o $@
 	@-echo "    CC    $@"
+
+run:	all
+	#@dd if=/dev/zero of=disk.img bs=1024 count=4096
+	@./mkfs --format=dsfs disk.img
