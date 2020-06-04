@@ -86,15 +86,17 @@ typedef struct super_block dsfs_superblock_t;
 
 struct superinode
 {
-    uint16_t links_count;         /* Links count */
+    uint16_t link_count;          /* Link count */
     uint32_t block_count;         /* Blocks count */
+    uint16_t link_free;
+    uint32_t block_free;
     uint32_t size;                /* Size in bytes */
     uint32_t dtime;               /* Deletion Time */
 };
 
 struct inode
 {
-    uint64_t prev;
+    off_t prev;
     uint16_t mode;                /* File mode */
     uint32_t atime;               /* Access time */
     uint32_t ctime;               /* Creation time */
@@ -104,10 +106,10 @@ struct inode
     uint32_t flags;               /* File flags */
     uint64_t inode_id;            /* a uniqu inode id */
     char     name[DSFS_NAME_LEN]; /* File name */
-    uint64_t next;
+    off_t    datablk;
+    uint8_t  isDeeper;
+    off_t    next;
 };
-
-#define L sizeof(struct inode)
 
 static_assert(((sizeof(struct inode) % 8) == 0));
 
@@ -128,7 +130,7 @@ struct dsfs_directory
 struct dsfs_datablock
 {
     uint8_t   data[DSFS_BLOCK_SIZE - sizeof(uint64)];
-    uint64_t  next;
+    off_t  next;
 };
 
 static_assert(sizeof(struct dsfs_datablock) == DSFS_BLOCK_SIZE);

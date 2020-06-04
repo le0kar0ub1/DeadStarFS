@@ -42,14 +42,17 @@ struct super_block superblk =
 
 struct superinode superinode =
 {
-    .links_count = 0x2,
+    .link_count = 0x2,
     .block_count = 0x0,
+    .link_free = 0x0,
+    .block_free = 0x0,
     .size = DSFS_BLOCK_SIZE,
     .dtime = 0x0,
 };
 
 struct inode rootinode =
 {
+    .prev = 0x0,
     .mode = FS_IFDIR | S_IRWXU,
     .atime = 0x0,
     .ctime = 0x0,
@@ -58,6 +61,8 @@ struct inode rootinode =
     .gid = 0x0,
     .flags = 0x0,
     .inode_id = 0x0,
+    .name = {0},
+    .isDeeper = 0x0,
     .next = 0x0,
 };
 
@@ -69,7 +74,12 @@ static void dsfs_mk_superblock(struct mkfs_t *mkfs)
 
 static void dsfs_mk_rootinode(struct mkfs_t *mkfs)
 {
-
+    safe_lseekset(mkfs->fd, DSFS_FIRST_INODE_OFF);
+    write(mkfs->fd, &superinode, sizeof(struct superinode));
+    strcpy(rootinode.name, ".");
+    write(mkfs->fd, &rootinode, sizeof(struct inode));
+    strcpy(rootinode.name, "..");
+    write(mkfs->fd, &rootinode, sizeof(struct inode));
 }
 
 void dsfs_handler(char const *disk)

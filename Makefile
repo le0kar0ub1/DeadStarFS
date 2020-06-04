@@ -69,5 +69,6 @@ $(BUILD)/%$(OBJEXT): %$(CCEXT)
 	@-echo "    CC    $@"
 
 run:	all
-	#@dd if=/dev/zero of=disk.img bs=1024 count=4096
+	@rm disk.img
+	@dd if=/dev/zero of=disk.img bs=1024 count=4096
 	@./mkfs --format=dsfs disk.img

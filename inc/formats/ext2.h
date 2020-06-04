@@ -182,15 +182,15 @@ static_assert(((sizeof(struct ext2_group_desc) % 8) == 0));
 struct ext2_inode
 {
     uint16_t mode;        /* File mode */
-    uint16_t uid;     /* Owner Uid */
+    uint16_t uid;         /* Owner Uid */
     uint32_t size;        /* 4: Size in bytes */
     uint32_t atime;       /* Access time */
     uint32_t ctime;       /* 12: Creation time */
     uint32_t mtime;       /* Modification time */
     uint32_t dtime;       /* 20: Deletion Time */
-    uint16_t gid;     /* Group Id */
+    uint16_t gid;         /* Group Id */
     uint16_t links_count; /* 24: Links count */
-    uint32_t block_count;      /* Blocks count */
+    uint32_t block_count; /* Blocks count */
     uint32_t flags;       /* 32: File flags */
     uint32_t i_reserved1;
     uint32_t blocks[EXT2_N_BLOCKS];    /* 40: Pointers to blocks */
