@@ -83,23 +83,31 @@ typedef struct super_block dsfs_superblock_t;
 /*
 ** dsfs inode structure
 */
+
+struct superinode
+{
+    uint16_t links_count;         /* Links count */
+    uint32_t block_count;         /* Blocks count */
+    uint32_t size;                /* Size in bytes */
+    uint32_t dtime;               /* Deletion Time */
+};
+
 struct inode
 {
-    uint16_t mode;          /* File mode */
-    uint16_t uid;           /* Owner Uid */
-    uint32_t size;          /* Size in bytes */
-    uint32_t atime;         /* Access time */
-    uint32_t ctime;         /* Creation time */
-    uint32_t mtime;         /* Modification time */
-    uint32_t dtime;         /* Deletion Time */
-    uint16_t gid;           /* Group Id */
-    uint16_t links_count;   /* Links count */
-    uint32_t block_count;   /* Blocks count */
-    uint32_t flags;         /* File flags */
-    uint32_t version;       /* File version (for NFS) */
-    uint32_t inode_id[16];      /* a uniqu inode id */
+    uint64_t prev;
+    uint16_t mode;                /* File mode */
+    uint32_t atime;               /* Access time */
+    uint32_t ctime;               /* Creation time */
+    uint32_t mtime;               /* Modification time */
+    uint16_t uid;                 /* Owner Uid */
+    uint16_t gid;                 /* Group Id */
+    uint32_t flags;               /* File flags */
+    uint64_t inode_id;            /* a uniqu inode id */
+    char     name[DSFS_NAME_LEN]; /* File name */
     uint64_t next;
 };
+
+#define L sizeof(struct inode)
 
 static_assert(((sizeof(struct inode) % 8) == 0));
 

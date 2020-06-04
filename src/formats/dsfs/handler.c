@@ -40,10 +40,36 @@ struct super_block superblk =
     .def_resgid = 0x0
 };
 
+struct superinode superinode =
+{
+    .links_count = 0x2,
+    .block_count = 0x0,
+    .size = DSFS_BLOCK_SIZE,
+    .dtime = 0x0,
+};
+
+struct inode rootinode =
+{
+    .mode = FS_IFDIR | S_IRWXU,
+    .atime = 0x0,
+    .ctime = 0x0,
+    .mtime = 0x0,
+    .uid = 0x0,
+    .gid = 0x0,
+    .flags = 0x0,
+    .inode_id = 0x0,
+    .next = 0x0,
+};
+
 static void dsfs_mk_superblock(struct mkfs_t *mkfs)
 {
     safe_lseekset(mkfs->fd, DSFS_SUPERBLOCK_OFF);
     write(mkfs->fd, &superblk, sizeof(struct super_block));
+}
+
+static void dsfs_mk_rootinode(struct mkfs_t *mkfs)
+{
+
 }
 
 void dsfs_handler(char const *disk)
@@ -55,4 +81,5 @@ void dsfs_handler(char const *disk)
         pexit("Can't open disk img");
     mkfs->size = checkup(disk);
     dsfs_mk_superblock(mkfs);
+    dsfs_mk_rootinode(mkfs);
 }
