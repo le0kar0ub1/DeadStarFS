@@ -10,8 +10,9 @@
 
 #define DSFS_NAME_LEN   255
 
-#define DSFS_FIRST_INODE_OFF   2048
-#define DSFS_FIRST_DATABLK_OFF 3072
+#define DSFS_FIRST_INODE_OFF   (DSFS_BLOCK_SIZE * 2)
+#define DSFS_FIRST_BITMAP_OFF  (DSFS_BLOCK_SIZE * 3)
+#define DSFS_FIRST_DATABLK_OFF (DSFS_BLOCK_SIZE * 4)
 
 #define DSFS_SUPERBLOCK_OFF 1024
 #define DSFS_SUPERBLOCK_SZ  1024
@@ -80,6 +81,13 @@ struct super_block
 
 typedef struct super_block dsfs_superblock_t;
 
+struct dsfs_bitmap
+{
+    uint8 bitmap[DSFS_BLOCK_SIZE / sizeof(uint8)];
+};
+
+static_assert(sizeof(struct dsfs_bitmap) == DSFS_BLOCK_SIZE);
+
 /*
 ** dsfs inode structure
 */
@@ -96,7 +104,7 @@ struct superinode
 
 struct inode
 {
-    off_t prev;
+    off_t    prev;
     uint16_t mode;                /* File mode */
     uint32_t atime;               /* Access time */
     uint32_t ctime;               /* Creation time */

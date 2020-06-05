@@ -66,10 +66,31 @@ struct inode rootinode =
     .next = 0x0,
 };
 
+struct dsfs_bitmap rootbitmap =
+{
+    .bitmap = {0}
+};
+
 static void dsfs_mk_superblock(struct mkfs_t *mkfs)
 {
     safe_lseekset(mkfs->fd, DSFS_SUPERBLOCK_OFF);
     write(mkfs->fd, &superblk, sizeof(struct super_block));
+}
+
+static void dsfs_mk_rootbitmap(struct mkfs_t *mkfs)
+{
+    off_t offstart = DSFS_FIRST_DATABLK_OFF;
+    off_t offend   = (offstart + (sizeof(struct inode) * 2) + sizeof(struct superinode));
+    uint inc = 0x0;
+
+    safe_lseekset(mkfs->fd, DSFS_FIRST_BITMAP_OFF);
+    while (offstart < offend)
+    {
+        rootbitmap.bitmap[inc] = 1;
+        offstart += DSFS_BLOCK_SIZE;
+        inc++;
+    }
+    write(mkfs->fd, &rootbitmap, sizeof(struct dsfs_bitmap));
 }
 
 static void dsfs_mk_rootinode(struct mkfs_t *mkfs)
@@ -91,5 +112,6 @@ void dsfs_handler(char const *disk)
         pexit("Can't open disk img");
     mkfs->size = checkup(disk);
     dsfs_mk_superblock(mkfs);
+    dsfs_mk_rootbitmap(mkfs);
     dsfs_mk_rootinode(mkfs);
 }
