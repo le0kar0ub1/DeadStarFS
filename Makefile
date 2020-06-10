@@ -1,74 +1,15 @@
- #
-# Simple Makefile to compile our mkfs sources
- #
+mkfs:
+	make -C mkfs -s --no-print-directory
 
-BUILD		:=	build
+mkfs-clean:
+	make clean -C mkfs -s --no-print-directory
 
-CC			:=	gcc
+fs:
+	make -C fs -s --no-print-directory
 
-OBJEXT		:=	.o
+fs-clean:
+	make clean -C fs -s --no-print-directory
 
-CCEXT		:=	.c
+all: fs all
 
-BINARY		:=	mkfs
-
-LNKFLAGS	=	-o $(BINARY)
-
-SRCDIR		:=	src									\
-				$(addprefix src/formats/,			\
-								ext2				\
-								dsfs				\
-				)
-
-INCDIR		=	inc
-
-CCFLAGS		=	-I $(INCDIR)						\
-				-Wall								\
-				-Wextra								\
-				-Wnested-externs					\
-				-Winline							\
-				-Wpragmas							\
-				-Wuninitialized						\
-				-Wno-missing-braces					\
-				-Wcast-align						\
-				-Wwrite-strings						\
-				-Wparentheses						\
-				-Wunreachable-code					\
-				-Wunused							\
-				-Wmissing-field-initializers		\
-				-Wswitch-enum						\
-				-Wshadow							\
-				-Wuninitialized				 		\
-				-Wmissing-declarations				\
-				-Wmissing-prototypes				\
-				-Wstrict-prototypes					\
-				-Wpointer-arith						\
-				-Wno-override-init					\
-
-SOURCES		:=	$(wildcard $(addsuffix /*$(CCEXT), $(SRCDIR)))
-
-OBJECTS		:=	$(patsubst %$(CCEXT), $(BUILD)/%$(OBJEXT), $(SOURCES))
-
-all:	$(BINARY)
-
-clean:
-	@rm -rf	$(BUILD)
-
-fclean:	clean
-	@rm -f	$(BINARY)
-
-re:	fclean	all
-
-$(BINARY):	$(OBJECTS)
-	@$(CC) $(LNKFLAGS) $(OBJECTS)
-	@-echo "   LNK    $(BINARY)"
-
-$(BUILD)/%$(OBJEXT): %$(CCEXT)
-	@mkdir -p $(shell dirname $@)
-	@$(CC) $(CCFLAGS) -c $< -o $@
-	@-echo "    CC    $@"
-
-run:	all
-	@rm disk.img
-	@dd if=/dev/zero of=disk.img bs=1024 count=4096
-	@./mkfs --format=dsfs disk.img
+clean: fs-clean mkfs-clean
