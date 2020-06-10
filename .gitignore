@@ -1,5 +1,4 @@
 build
-mkfs
 *.img
 
 # Prerequisites
